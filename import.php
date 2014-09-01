@@ -20,10 +20,10 @@ require_once('Kg_Command.php');
 // Берем рсс тунца (у фидбарнера)
 $config = [
     'url' => 'http://feeds.feedburner.com/kino-govno/lasershow',
-    'limit' => 2,
-    'offset' => 15,
+    'limit' => 10,
+    'offset' => 1,
     'sourceDir' => 'audio/source/',
-    'outputDir' => 'audio/out/'
+    'outputDir' => 'audio/chunked/'
 ];
 
 Logger::log('start parsing', 'parse');
@@ -64,7 +64,7 @@ foreach ($podcasts as $podcast) {
     $wget->add($podcast->getDownloadLink());
 
     foreach ($podcast->content as $k => $part) {
-        $ffmpeg->add(Kg_Ffmpeg_Helper::get($podcast, $part, $k));
+        $ffmpeg->add(Kg_Ffmpeg_Helper::get($podcast, $part, $k, $config));
     }
 
     $podcast->status = 'inprogress';
