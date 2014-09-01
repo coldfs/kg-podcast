@@ -35,15 +35,18 @@ class Kg_Podcast_Parser
                 continue;
             }
 
-            $data = [
-                'title' => (string) $item->title,
-                'subtitle' => (string) $item->itunessubtitle,
-                'date' => (string) $item->pubDate,
-                'content' => $this->_parseSummary((string) $item->itunessummary, (string) $item->itunesduration),
-            ];
-            $data['hash'] = md5(serialize($data));
+            $podcast = new Kg_Podcast();
+            
+            $podcast->id = (string) $item->itunessubtitle;
+            $podcast->title = (string) $item->title;
+            $podcast->subtitle = (string) $item->itunessubtitle;
+            $podcast->date = (string) $item->pubDate;
+            $podcast->length = (string) $item->itunesduration;
+            $podcast->content = $this->_parseSummary((string) $item->itunessummary, $podcast->length);
 
-            $result[] = $data;
+            $podcast->hash = $podcast->getHash();
+
+            $result[] = $podcast;
 
             $limit--;
             if (!$limit) {
@@ -79,7 +82,7 @@ class Kg_Podcast_Parser
 
             // Заставляем первый элемент начнаться с 00:00:00. а то не понятно что делать с начальными огрызками
             if (empty($result)) {
-                $parsed['start'] = '00:00:00';
+                $parsed->start = '00:00:00';
             }
             $result[] = $parsed;
         }
@@ -96,13 +99,14 @@ class Kg_Podcast_Parser
      */
     protected function _parseLine($line)
     {
-        $result = [];
+        $result = false;
 
         preg_match('/^((\d{1,2}:)?\d{1,2}:\d{1,2})\s*[—–]+\s*(.*)$/', $line, $matches);
         if (!empty($matches)) {
-            $result['title'] = $matches[3];
-            $result['start'] = $matches[1];
-            $result['original'] = $line;
+            $result = new Kg_Podcast_Part();
+            $result->title = $matches[3];
+            $result->start = $matches[1];
+            $result->original = $line;
         } else {
             echo 'Не удалось распарсить: ', $line . "\n";
         }
@@ -122,9 +126,9 @@ class Kg_Podcast_Parser
     {
         foreach ($content as $k => $value) {
             if (isset($content[$k + 1])) {
-                $content[$k]['length'] = $this->_diffTimes($content[$k + 1]['start'], $content[$k]['start']);
+                $content[$k]->length = $this->_diffTimes($content[$k + 1]->start, $content[$k]->start);
             } else {
-                $content[$k]['length'] = $this->_diffTimes($duration, $content[$k]['start']);
+                $content[$k]->length = $this->_diffTimes($duration, $content[$k]->start);
             }
         }
         return $content;
