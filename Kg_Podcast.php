@@ -107,4 +107,15 @@ class Kg_Podcast
 
         return md5(serialize($data));
     }
+
+
+    public function getDownloadLink()
+    {
+        return 'http://kg/kg.' . $this->id . '.mp3';
+    }
+
+    public function getFileName()
+    {
+        return 'kg_' . $this->id . '.mp3';
+    }
 }
