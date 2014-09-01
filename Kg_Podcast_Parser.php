@@ -105,7 +105,7 @@ class Kg_Podcast_Parser
         if (!empty($matches)) {
             $result = new Kg_Podcast_Part();
             $result->title = $matches[3];
-            $result->start = $matches[1];
+            $result->start = $this->_diffTimes($matches[1], '00:00:00');
             $result->original = $line;
         } else {
             Logger::log('-- Не удалось распарсить: ', $line);
