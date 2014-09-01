@@ -108,14 +108,23 @@ class Kg_Podcast
         return md5(serialize($data));
     }
 
-
+    /**
+     * Ссылка для скачивания
+     *
+     * @return string
+     */
     public function getDownloadLink()
     {
-        return 'http://kg/kg.' . $this->id . '.mp3';
+        return 'http://media.kino-govno.com/movies/k/kgpodcast/trailers/kgaudiopodcast_part' . $this->id . '.mp3';
     }
 
+    /**
+     * Имя фаила
+     *
+     * @return string
+     */
     public function getFileName()
     {
-        return 'kg_' . $this->id . '.mp3';
+        return 'kgaudiopodcast_part' . $this->id . '.mp3';
     }
 }

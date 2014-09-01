@@ -7,70 +7,74 @@
  * @copyright 2014 coldfs
  */
 
-require_once('Kg_Podcast_Parser.php');
+//Fuck autolad
+require_once('Database.php');
+require_once('Logger.php');
 require_once('Kg_Podcast.php');
 require_once('Kg_Podcast_Part.php');
-require_once('Database.php');
+require_once('Kg_Podcast_Parser.php');
+require_once('Kg_Ffmpeg_Helper.php');
+require_once('Kg_Command.php');
 
 // Парсим фаил с подкастом
 // Берем рсс тунца (у фидбарнера)
 $config = [
     'url' => 'http://feeds.feedburner.com/kino-govno/lasershow',
-    //'url' => 'lasershow.html',
-    'limit' => 0,
-    'offset' => 0,
+    'limit' => 2,
+    'offset' => 15,
     'sourceDir' => 'audio/source/',
     'outputDir' => 'audio/out/'
 ];
 
-echo "start parsing\n\n";
+Logger::log('start parsing', 'parse');
 
 $parser = new Kg_Podcast_Parser();
 $result = $parser->parseRss($config['url'], $config['limit'], $config['offset']);
 
-echo "parsing complete\n";
-echo "start saving\n\n";
+Logger::log('parsing complete', 'parse');
+Logger::log('start saving', 'save');
 
-// Fuck it, plain text is our best choise
 foreach ($result as $item) {
     $currentVersion = Database::getById($item->id);
 
     if (!empty($currentVersion)) {
         if ($currentVersion->hash === $item->hash) {
-            echo $item->subtitle . " unchanged, skip\n";
+            Logger::log('-- ' . $item->subtitle . " unchanged, skip");
             continue;
         }
     }
 
     $item->status = 'new';
     Database::save($item);
-    echo $item->subtitle . " saved\n";
+    Logger::log('-- ' . $item->subtitle . " saved");
 }
 
 Database::saveAll();
-echo "\nsave complete \n";
-echo "prepare commands\n";
-echo "prepare downloads\n";
-$podcasts = Database::getByStatus('new');
+Logger::log('save complete', 'save');
+
 //prepare links for wget and commands for mpeg
-//WARNING, SHITTY CODE
-file_put_contents('commands/wget.list', '');
-file_put_contents('commands/ffmpeg.list', '');
-foreach ($podcasts as $podcast) {
-    file_put_contents('commands/wget.list', $podcast->getDownloadLink() . "\n", FILE_APPEND);
-    foreach ($podcast->content as $k => $part) {
-        $com = 'ffmpeg -i ' . $podcast->getFileName()
-            . ' -acodec copy -t ' .$part->length
-            . ' -ss ' . $part->start
-            . ' -metadata title="' . $part->title .'" '
-            . ($podcast->id .'_' . $k) .'.mp3';
+Logger::log("prepare commands", 'com');
+$podcasts = Database::getByStatus('new');
 
-        file_put_contents('commands/ffmpeg.list', $com . "\n", FILE_APPEND);
+$wget = new Kg_Command('commands/wget.list');
+$ffmpeg = new Kg_Command('commands/ffmpeg.list');
+
+foreach ($podcasts as $podcast) {
+    //
+    $wget->add($podcast->getDownloadLink());
+
+    foreach ($podcast->content as $k => $part) {
+        $ffmpeg->add(Kg_Ffmpeg_Helper::get($podcast, $part, $k));
     }
-    $podcast->status = 'complete';
+
+    $podcast->status = 'inprogress';
     Database::save($podcast);
-    echo $podcast->id ." processed\n";
+    Logger::log('-- ' . $podcast->subtitle . " processed");
 }
 
+$wget->write();
+$ffmpeg->write();
 Database::saveAll();
-echo "processing complete\n";
+
+Logger::log("processing complete", 'com');
+Logger::log("\n\nNow you must run process.sh");

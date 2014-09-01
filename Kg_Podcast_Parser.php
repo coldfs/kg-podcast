@@ -36,8 +36,8 @@ class Kg_Podcast_Parser
             }
 
             $podcast = new Kg_Podcast();
-            
-            $podcast->id = (string) $item->itunessubtitle;
+
+            $podcast->id = intval(preg_replace('/\D/', '', (string) $item->itunessubtitle));
             $podcast->title = (string) $item->title;
             $podcast->subtitle = (string) $item->itunessubtitle;
             $podcast->date = (string) $item->pubDate;
@@ -108,7 +108,7 @@ class Kg_Podcast_Parser
             $result->start = $matches[1];
             $result->original = $line;
         } else {
-            echo 'Не удалось распарсить: ', $line . "\n";
+            Logger::log('-- Не удалось распарсить: ', $line);
         }
 
         return $result;
