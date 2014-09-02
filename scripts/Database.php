@@ -15,7 +15,7 @@ class Database
 
     protected static $file = 'data.json';
 
-    protected static $jsfile = 'data.js';
+    protected static $jsfile = 'www/data.js';
 
     protected static $changed = false;
 

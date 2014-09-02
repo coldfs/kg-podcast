@@ -13,13 +13,13 @@ if (php_sapi_name() !== "cli") {
 }
 
 //Fuck autolad
-require_once('Database.php');
-require_once('Logger.php');
-require_once('Kg_Podcast.php');
-require_once('Kg_Podcast_Part.php');
-require_once('Kg_Podcast_Parser.php');
-require_once('Kg_Ffmpeg_Helper.php');
-require_once('Kg_Command.php');
+require_once('scripts/Database.php');
+require_once('scripts/Logger.php');
+require_once('scripts/Kg_Podcast.php');
+require_once('scripts/Kg_Podcast_Part.php');
+require_once('scripts/Kg_Podcast_Parser.php');
+require_once('scripts/Kg_Ffmpeg_Helper.php');
+require_once('scripts/Kg_Command.php');
 
 // Парсим фаил с подкастом
 // Берем рсс тунца (у фидбарнера)
@@ -27,8 +27,8 @@ $config = [
     'url' => 'http://feeds.feedburner.com/kino-govno/lasershow',
     'limit' => 0,
     'offset' => 0,
-    'sourceDir' => 'audio/source/',
-    'outputDir' => 'audio/chunked/'
+    'sourceDir' => 'www/audio/source/',
+    'outputDir' => 'www/audio/chunked/'
 ];
 
 
