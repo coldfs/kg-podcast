@@ -15,6 +15,8 @@ class Database
 
     protected static $file = 'data.json';
 
+    protected static $jsfile = 'data.js';
+
     protected static $changed = false;
 
     protected static $data = null;
@@ -104,5 +106,6 @@ class Database
     public static function saveAll()
     {
         file_put_contents(self::$file, json_encode(self::$data));
+        file_put_contents(self::$jsfile, 'var data = ' . json_encode(self::$data));
     }
 }

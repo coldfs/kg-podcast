@@ -7,6 +7,11 @@
  * @copyright 2014 coldfs
  */
 
+if (php_sapi_name() !== "cli") {
+    echo 'Only cli mode allowed';
+    die;
+}
+
 //Fuck autolad
 require_once('Database.php');
 require_once('Logger.php');
@@ -20,11 +25,20 @@ require_once('Kg_Command.php');
 // Берем рсс тунца (у фидбарнера)
 $config = [
     'url' => 'http://feeds.feedburner.com/kino-govno/lasershow',
-    'limit' => 2,
-    'offset' => 42,
+    'limit' => 0,
+    'offset' => 0,
     'sourceDir' => 'audio/source/',
     'outputDir' => 'audio/chunked/'
 ];
+
+
+if (isset($argv[1])) {
+    $config['limit'] = intval($argv[1]);
+}
+
+if (isset($argv[2])) {
+    $config['offset'] = intval($argv[2]);
+}
 
 Logger::log('start parsing', 'parse');
 
@@ -77,4 +91,3 @@ $ffmpeg->write();
 Database::saveAll();
 
 Logger::log("processing complete", 'com');
-Logger::log("\n\nNow you must run process.sh");
