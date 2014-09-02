@@ -1,9 +1,9 @@
 kg-podcast
 ==========
-Requriments:
-  wget
-  avconv
-  php
+##Requriments:
+  * wget
+  * avconv
+  * php
 
-Run:
-  ./process.sh [limit] [offset]
+##Run:
+  * ./process.sh [limit] [offset]
