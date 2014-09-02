@@ -57,19 +57,4 @@ class Kg_Podcast_Part
     {
         return preg_match('/' . $query .'/', $this->title);
     }
-
-    /**
-     * Возвращает объект в виде массива
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return [
-            'title' => $this->title,
-            'start' => $this->start,
-            'length' => $this->length,
-            'original' => $this->original
-        ];
-    }
 }

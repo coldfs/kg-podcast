@@ -8,12 +8,21 @@
  */
 
 /**
- * Логгер
+ * Логгер (эта версия выводит прям в output)
  */
 class Logger
 {
+    /**
+     * @var array для замера времени
+     */
     public static $log = [];
 
+    /**
+     * Выводит сообщение в лог
+     *
+     * @param string $message
+     * @param string $tag - если не пустой, то при слудющем выводе с таким же тегом - выведет разницу во времени
+     */
     public static function log($message, $tag = '')
     {
         $time = false;
@@ -30,6 +39,13 @@ class Logger
         echo "\n";
     }
 
+
+    /**
+     * Стартует таймер для тега или отдает время этого тега
+     *
+     * @param string $tag
+     * @return bool|float
+     */
     public function tag($tag)
     {
         if (empty(self::$log[$tag])) {

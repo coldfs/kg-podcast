@@ -68,7 +68,7 @@ class Database
         $result = self::_filter(function ($item) use ($id) {
             return $item->id == $id;
         });
-        //var_dump($result);
+
         if (!empty($result)) {
             return reset($result);
         } else {
