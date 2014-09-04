@@ -47,7 +47,8 @@ class Kg_Ffmpeg_Helper
         $com = 'avconv -i "' . $config['sourceDir'] . $podcast->getFileName() //Исходный фаил
             . '" -t ' . $part->length // Длительность записи
             . ' -ss '. $part->start // Начало записи
-            . '  -acodec copy -y "' // Перезаписываем если нужно
+            . ' -metadata title="' . $part->original .'" ' // Метатег с названием
+            . ' -acodec copy -y "' // Перезаписываем если нужно
             . $config['outputDir'] . ($podcast->id .'_' . $k) .'.mp3'.'"'; //Название фаила
 
         return $com;
