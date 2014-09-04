@@ -7,3 +7,5 @@ kg-podcast
 
 ##Run:
   * ./process.sh [limit] [offset]
+  * подождать пока все закончится
+  * открыть www/index.html в браузере
