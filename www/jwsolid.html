@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Kg-player</title>
+<script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+<script type="text/javascript" src="js/moment-with-locales.js"></script>
+<script type="text/javascript" src="jwplayer/jwplayer.js"></script>
+<script type="text/javascript" src="data.js"></script>
+<style type="text/css">
+    #kgplayer {
+        margin-left: auto;
+        margin-right: auto;
+        width: 700px;
+        height: 338px;
+        background-image: url(http://media.kino-govno.com/movies/k/kgpodcast/trailers/18517t.jpg);
+        background-size: 100%;
+    }
+    #results {
+        margin-left: auto;
+        margin-right: auto;
+        width: 600px;
+    }
+    #search {
+        margin-left: auto;
+        margin-right: auto;
+        width: 400px;
+        margin-top: 20px;
+    }
+
+    #results .title {font-size:1.5em; padding: 5px;}
+    #results .title span {font-size: 0.6em;color: #999;}
+    #results .part {padding: 5px 5px 5px 25px;}
+    #results .part:hover {background-color: #e7e7e7;cursor:pointer;}
+    #footer {
+        text-align: center;
+        position:fixed;
+        bottom:0;
+        width: 100%;
+        padding: 5px;
+        background-color: #fff;
+    }
+</style>
+
+</head>
+<body>
+<div id="kgplayer"></div>
+<script>
+data = data.sort(function(a, b) {
+    //
+    if (a.id == b.id) {
+        return 0;
+    }
+    return (a.id > b.id) ? 1 : -1;
+});
+
+jwplayer('kgplayer').setup({
+    file: 'audio/chunked/23_0.mp3',
+    title: 'Вступление например',
+    image: 'http://media.kino-govno.com/movies/k/kgpodcast/trailers/18517t.jpg',
+    width: 640,
+    height: 338,
+});
+function showResults(results) {
+    //
+    var el = $('#results');
+    el.empty();
+
+    if (results.length == 0) {
+        el.append('<h2>Ничего не найдено</h2>');
+        return;
+    }
+
+    $.each(results, function(i, podcast) {
+        //
+        el.append('<div class="title">' + podcast.title + ' <span>' + podcast.date + '</span></div>');
+        $.each(podcast.content, function(index, part) {
+            //
+            var e = $('<div class="part">' + part.original + '</part>');
+            e.on('click', function() {
+                draw(podcast.id, part.start);
+            })
+            el.append(e);
+        });
+        el.append('<hr/>');
+    })
+}
+
+function draw(podcastId, partId) {
+    //
+    var playlist = [];
+    $.each(data, function(index, element) {
+        if (element.id == podcastId) {
+
+            $.each(element.content, function(i, part) {
+                //Привет костыли
+                if (partId == part.start) {
+
+                    jwplayer().onPlaylist(function() {
+                        var times = part.start.split(':');
+                        var time = ~~(times[0] * 60 * 60) + ~~(times[1] * 60) + ~~times[2];
+                        jwplayer().seek(time);
+                        jwplayer().play();
+                    })
+                }
+            });
+
+            jwplayer().load({
+                image: 'http://media.kino-govno.com/movies/k/kgpodcast/trailers/18517t.jpg',
+                title: element.title,
+                file: 'http://media.kino-govno.com/movies/k/kgpodcast/trailers/kgaudiopodcast_part' + podcastId + '.mp3'
+            });
+        }
+    });
+
+
+
+}
+
+$(document).ready(function() {
+    // немного говнокода во славу сатане
+    $('#searchForm').on('submit', function() {
+        var query = $('[name="query"]').val();
+        var matched = [];
+        $.each(data, function(index, element) {
+            //
+            var result = {id: element.id, title: element.title, 'content': []},
+                reg = new RegExp(query, 'i')
+
+            $.each(element.content, function(ind, part) {
+                if (reg.test(part.title)) {
+                    part.index = ind;
+                    result.content.push(part);
+                }
+            })
+
+            if (result.content.length > 0) {
+                result.date = moment(element.date, 'ddd, DD MMM YYYY HH:mm:ss ZZ').format('YYYY-MM-DD HH:mm:ss');
+                matched.push(result);
+            }
+        });
+        showResults(matched);
+        return false;
+    });
+});
+
+</script>
+
+<div id="search">
+    <form id="searchForm">
+        <input type="text" name="query" style="width: 300px"/>
+        <input type="submit" value="Искать"/>
+    </form>
+    <br/>
+</div>
+<div id="results"></div>
+</body>
+</html>
