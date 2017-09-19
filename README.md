@@ -1,11 +1,11 @@
 kg-podcast
 ==========
-##Requriments:
+#### Requriments:
   * wget
   * avconv
   * php
 
-##Run:
+#### Run:
   * ./process.sh [limit] [offset]
   * подождать пока все закончится
   * открыть www/index.html в браузере
